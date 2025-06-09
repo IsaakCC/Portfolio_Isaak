@@ -4,125 +4,339 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alex Carter | Creative Portfolio</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
-    <script src="script.js"></script>
+    <title>Isaak Campbell | Digital Designer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap');
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            overflow-x: hidden;
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa, #38bdf8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .floating {
+            animation: floating 6s ease-in-out infinite;
+        }
+
+        .floating-delay-1 {
+            animation-delay: 1s;
+        }
+
+        .floating-delay-2 {
+            animation-delay: 2s;
+        }
+
+        @keyframes floating {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .project-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transform-style: preserve-3d;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
+        }
+
+        .skill-bar {
+            height: 4px;
+            position: relative;
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .skill-progress {
+            position: absolute;
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #38bdf8);
+            transition: width 1.5s ease-out;
+            width: 0;
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            background: #3b82f6;
+            bottom: -2px;
+            left: 0;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .glass-effect {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(59, 130, 246, 0.6);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+        }
+    </style>
 </head>
 
-<body>
-    <!-- Header & Navigation -->
-    <header id="header">
-        <div class="container">
-            <nav class="navbar">
-                <a href="#" class="logo">
-                    I<span>C</span>
-                </a>
+<body class="min-h-screen relative overflow-x-hidden">
+    <!-- Animated Background Canvas -->
+    <div id="canvas-container"></div>
 
-                <ul class="nav-links">
-                    <li><a href="#hero" class="nav-link">Home</a></li>
-                    <li><a href="#about" class="nav-link">About</a></li>
-                    <li><a href="#services" class="nav-link">Services</a></li>
-                    <li><a href="#portfolio" class="nav-link">Portfolio</a></li>
-                    <li><a href="#contact" class="nav-link">Contact</a></li>
-                </ul>
+    <!-- Floating Particles -->
+    <div id="particles-js"></div>
 
-                <div class="hamburger">
-                    <i class="fas fa-bars"></i>
-                </div>
-            </nav>
+    <!-- Navigation -->
+    <nav class="glass-effect fixed top-0 left-0 right-0 z-50 py-4 px-6 md:px-12 flex justify-between items-center">
+        <a href="#" class="text-2xl font-bold gradient-text">IC</a>
+        <div class="hidden md:flex space-x-8">
+            <a href="#home" class="nav-link text-blue-400 hover:text-blue-200 transition">Home</a>
+            <a href="#about" class="nav-link text-blue-400 hover:text-blue-200 transition">About</a>
+            <a href="#work" class="nav-link text-blue-400 hover:text-blue-200 transition">Projects</a>
+            <a href="#skills" class="nav-link text-blue-400 hover:text-blue-200 transition">Skills</a>
+            <a href="#contact" class="nav-link text-blue-400 hover:text-blue-200 transition">Contact</a>
         </div>
-    </header>
+        <button class="md:hidden text-blue-400" id="mobile-menu-button">
+            <i class="fas fa-bars text-2xl"></i>
+        </button>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu"
+        class="fixed top-0 right-0 h-full w-64 bg-black bg-opacity-90 z-50 transform translate-x-full transition-transform duration-300 p-6 shadow-xl">
+        <button id="close-menu" class="absolute top-4 right-4 text-blue-400">
+            <i class="fas fa-times text-2xl"></i>
+        </button>
+        <div class="flex flex-col space-y-8 mt-16">
+            <a href="#home" class="text-xl text-blue-400 hover:text-blue-200 transition">Home</a>
+            <a href="#about" class="text-xl text-blue-400 hover:text-blue-200 transition">About</a>
+            <a href="#work" class="text-xl text-blue-400 hover:text-blue-200 transition">Projects</a>
+            <a href="#skills" class="text-xl text-blue-400 hover:text-blue-200 transition">Skills</a>
+            <a href="#contact" class="text-xl text-blue-400 hover:text-blue-200 transition">Contact</a>
+        </div>
+    </div>
 
     <!-- Hero Section -->
-    <section id="hero">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h1>Isaak Campbell</h1>
-                    <h2>Digital Designer</h2>
-                    <p>I craft digital experiences that are beautiful, functional, and tailored to your unique needs.
-                        Let's build something amazing together.</p>
-                    <div class="hero-btns">
-                        <a href="#contact" class="btn">Hire Me</a>
-                        <a href="#portfolio" class="btn btn-outline">My Work</a>
-                    </div>
-                    <div class="social-links">
-                        <a href="#" class="social-link"><i class="fab fa-github"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-link"><i class="fab fa-dribbble"></i></a>
-                    </div>
-                </div>
-
-                <div class="hero-img">
-                    <img src="pfpp.png"
-                        alt="Alex Carter">
-                </div>
+    <section id="home" class="min-h-screen flex items-center justify-center py-20 px-6 md:px-12">
+        <div class="container mx-auto text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">
+                <span class="gradient-text">Isaak Campbell</span>
+            </h1>
+            <h2 class="text-xl md:text-2xl mb-6 opacity-80">
+                Digital Designer <span class="pulse opacity-70">•</span> Web Developer <span
+                    class="pulse opacity-70">•</span> Creative Visionary
+            </h2>
+            <p class="max-w-2xl mx-auto mb-8 opacity-80 text-lg">
+                I craft immersive digital experiences that blend aesthetics with functionality to create memorable brand
+                interactions.
+            </p>
+            <div class="flex justify-center space-x-6">
+                <a href="#work"
+                    class="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg shadow-blue-500/30">
+                    View My Work
+                </a>
+                <a href="#contact"
+                    class="px-8 py-3 border border-blue-500 text-blue-400 hover:bg-blue-500 hover:bg-opacity-20 rounded-full font-bold transition-all transform hover:scale-105">
+                    Get In Touch
+                </a>
             </div>
         </div>
     </section>
 
     <!-- About Section -->
-    <section id="about">
-        <div class="container">
-            <h2 class="section-title">About Me</h2>
+    <section id="about" class="py-20 px-6 md:px-12 relative">
+        <div class="absolute -right-40 -top-40 w-80 h-80 bg-blue-600 rounded-full filter blur-3xl opacity-20"></div>
+        <div class="absolute left-20 bottom-20 w-64 h-64 bg-blue-400 rounded-full filter blur-3xl opacity-10"></div>
 
-            <div class="about-content">
-                <div class="about-img">
-                    <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=634&q=80"
-                        alt="Alex Carter Working">
+        <div class="container mx-auto">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-12 lg:mb-0 lg:pr-12">
+                    <div class="relative">
+                        <img src="duude.png" alt="Alex Carter"
+                            class="rounded-xl shadow-2xl w-full max-w-md mx-auto floating">
+                        <div
+                            class="absolute -bottom-5 -right-5 bg-blue-700 text-white p-4 rounded-lg shadow-lg transform rotate-3">
+                            <div class="text-3xl font-bold">8+</div>
+                            <div class="text-sm opacity-80">Years Experience</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:w-1/2">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6">
+                        <span class="gradient-text">About Me</span>
+                    </h2>
+                    <p class="mb-6 opacity-90">
+                        As a 21 year old dedicated professional with a strong focus on customer service and helping others, I bring
+                        in effective communication and relationship-building.
+                    </p>
+                    <p class="mb-6 opacity-90">
+                        I take pride in delivering high standards of service and maintaining attention to detail in all
+                        aspects of my work.
+                    </p>
+                    <p class="mb-6 opacity-90">
+                        Known for my reliability and strong work ethic, I strive to achieve meaningful results while
+                        remaining open to learning and growth.
+                    </p>
+                    <p class="mb-8 opacity-90">
+                        Outside of work, I maintain a commitment to physical fitness as a competitive underwater hockey
+                        player and actively contribute to youth development through coaching and mentorship.
+                    </p>
+                    <div class="flex flex-wrap gap-4 mb-8">
+                        <div class="glass-effect p-3 rounded-lg flex items-center">
+                            <i class="fas fa-award text-blue-400 mr-2"></i>
+                            <span class="text-sm">Studying Major in AI</span>
+                        </div>
+                        <div class="glass-effect p-3 rounded-lg flex items-center">
+                            <i class="fas fa-project-diagram text-blue-400 mr-2"></i>
+                            <span class="text-sm">Good eye for detail</span>
+                        </div>
+                        <div class="glass-effect p-3 rounded-lg flex items-center">
+                            <i class="fas fa-smile-beam text-blue-400 mr-2"></i>
+                            <span class="text-sm">Satisfied clients</span>
+                        </div>
+                    </div>
+                    <div class="flex space-x-6">
+                        <a href="I.C CV.pdf" download
+                            class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg shadow-blue-500/20">
+                            Download Resume <i class="fas fa-download ml-2"></i>
+                        </a>
+                        <a href="#contact"
+                            class="px-8 py-3 border border-blue-500 text-blue-400 hover:bg-blue-500 hover:bg-opacity-20 rounded-full font-bold transition-all transform hover:scale-105">
+                            Lets Do Something! <i class="fa fa-smile-beam ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Work/Portfolio Section -->
+    <section id="work" class="py-20 px-6 md:px-12 bg-black bg-opacity-50">
+        <div class="container mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold mb-2 text-center">
+                <span class="gradient-text">Projects & Work</span>
+            </h2>
+            <p class="text-center max-w-2xl mx-auto mb-12 opacity-80">
+                A showcase of my most impactful design projects. Each piece tells a unique story of problems solved
+                through design.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Project 1 -->
+                <div
+                    class="project-card glass-effect rounded-xl overflow-hidden transform hover:shadow-2xl transition-all duration-300">
+                    <div class="h-48 bg-gradient-to-r from-blue-900 to-blue-700 flex items-center justify-center">
+                        <img src="pro.png" alt="Alex Carter" class="object-cover w-full h-full">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-blue-300">Leadership Coaching Website</h3>
+                        <p class="mb-4 opacity-80">I created this leadership coaching website to showcase professional
+                            services and enhance online presence with a clean, responsive design.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-blue-400">Website Design & Management</span>
+                            <a href="https://www.proveritas.com.au/" target="_blank"
+                                class="text-blue-400 hover:text-blue-300 transition flex items-center">
+                                View live site <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="about-text">
-                    <h3>Professional Web Developer with 5+ Years of Experience</h3>
-                    <p>Hello! I'm Alex Carter, a passionate web developer specializing in creating beautiful, functional
-                        websites and web applications. I have a strong background in both frontend and backend
-                        technologies.</p>
-                    <p>My approach combines technical expertise with creative problem-solving to deliver solutions that
-                        not only meet but exceed client expectations.</p>
-
-                    <div class="skills">
-                        <div class="skill-item">
-                            <div class="skill-name">
-                                <span>Web Design</span>
-                                <span>90%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 90%"></div>
-                            </div>
+                <!-- Project 2 -->
+                <div
+                    class="project-card glass-effect rounded-xl overflow-hidden transform hover:shadow-2xl transition-all duration-300">
+                    <div class="h-48 bg-gradient-to-r from-blue-800 to-blue-600 flex items-center justify-center">
+                        <img src="uwh.png" alt="Underwater Hockey Website" class="object-cover w-full h-full">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-blue-300">Sports Clubs Website</h3>
+                        <p class="mb-4 opacity-80">Underwater Hockey State Clubs website showcasing teams, events, and
+                            community engagement.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-blue-400">Website Design & Management</span>
+                            <a href="https://nswunderwaterhockey.com/" target="_blank"
+                                class="text-blue-400 hover:text-blue-300 transition flex items-center">
+                                View live site <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                            </a>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="skill-item">
-                            <div class="skill-name">
-                                <span>Frontend Development</span>
-                                <span>85%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 85%"></div>
-                            </div>
-                        </div>
-
-                        <div class="skill-item">
-                            <div class="skill-name">
-                                <span>Backend Development</span>
-                                <span>75%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 75%"></div>
-                            </div>
-                        </div>
-
-                        <div class="skill-item">
-                            <div class="skill-name">
-                                <span>UI/UX Design</span>
-                                <span>80%</span>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress" style="width: 80%"></div>
-                            </div>
+                <!-- Project 3 -->
+                <div
+                    class="project-card glass-effect rounded-xl overflow-hidden transform hover:shadow-2xl transition-all duration-300">
+                    <div class="h-48 bg-gradient-to-r from-blue-700 to-blue-500 flex items-center justify-center">
+                        <img src="med.png" alt="Sydney UWH Media" class="object-cover w-full h-full">
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2 text-blue-300">Sports Clubs Media</h3>
+                        <p class="mb-4 opacity-80">Sydney Underwater Hockey social media showcasing teams, events, and
+                            community engagement.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-blue-400">Social Media Management</span>
+                            <a href="https://www.facebook.com/sydneyuwh/" target="_blank"
+                                class="text-blue-400 hover:text-blue-300 transition flex items-center">
+                                View media page <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -130,332 +344,435 @@
         </div>
     </section>
 
-    <!-- Services Section -->
-    <section id="services">
-        <div class="container">
-            <h2 class="section-title">My Services</h2>
 
-            <div class="services-grid">
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-code"></i>
+
+
+    <!-- Skills Section -->
+    <section id="skills" class="py-20 px-6 md:px-12 bg-black bg-opacity-50">
+        <div class="container mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold mb-2 text-center">
+                <span class="gradient-text">Skills & Expertise</span>
+            </h2>
+            <p class="text-center max-w-2xl mx-auto mb-12 opacity-80">
+                A blend of technical expertise and creative problem-solving that delivers exceptional results as I go.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <!-- Left Column -->
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Communication Skills</span>
+                            <span class="text-blue-400">95%</span>
+                        </div>
+                        <div class="skill-bar rounded-full">
+                            <div class="skill-progress rounded-full" data-percent="95"></div>
+                        </div>
                     </div>
-                    <h3 class="service-title">Web Development</h3>
-                    <p>Custom website development using modern technologies that ensure fast, responsive, and
-                        SEO-friendly results for your business.</p>
-                </div>
 
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-mobile-alt"></i>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Problem-Solving Skills</span>
+                            <span class="text-blue-400">90%</span>
+                        </div>
+                        <div class="skill-bar rounded-full">
+                            <div class="skill-progress rounded-full" data-percent="90"></div>
+                        </div>
                     </div>
-                    <h3 class="service-title">Mobile Development</h3>
-                    <p>Cross-platform mobile app development that works seamlessly across iOS and Android devices with
-                        native-like performance.</p>
-                </div>
 
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-paint-brush"></i>
-                    </div>
-                    <h3 class="service-title">UI/UX Design</h3>
-                    <p>Beautiful, intuitive interfaces designed to enhance user experience and drive engagement through
-                        thoughtful design principles.</p>
-                </div>
-
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <h3 class="service-title">Digital Marketing</h3>
-                    <p>Comprehensive digital marketing strategies including SEO, content marketing, and social media to
-                        grow your online presence.</p>
-                </div>
-
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <h3 class="service-title">SEO Optimization</h3>
-                    <p>Search engine optimization services that help your website rank higher on search engines and
-                        attract more organic traffic.</p>
-                </div>
-
-                <div class="service-card">
-                    <div class="service-icon">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <h3 class="service-title">Support & Maintenance</h3>
-                    <p>Ongoing support and maintenance packages to ensure your website remains secure, updated, and
-                        performing at its best.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Portfolio Section -->
-    <section id="portfolio">
-        <div class="container">
-            <h2 class="section-title">My Portfolio</h2>
-
-            <div class="portfolio-filter">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="web">Web Design</button>
-                <button class="filter-btn" data-filter="app">Mobile App</button>
-                <button class="filter-btn" data-filter="branding">Branding</button>
-            </div>
-
-            <div class="portfolio-grid">
-                <div class="portfolio-item" data-category="web">
-                    <div class="portfolio-img">
-                        <img src="https://images.unsplash.com/photo-1541462608143-67571c6738dd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
-                            alt="Portfolio Project 1">
-                    </div>
-                    <div class="portfolio-overlay">
-                        <h4 class="portfolio-title">E-commerce Website</h4>
-                        <span class="portfolio-category">Web Design</span>
-                        <div class="portfolio-links">
-                            <a href="#" class="portfolio-link"><i class="fas fa-link"></i></a>
-                            <a href="#" class="portfolio-link"><i class="fas fa-search"></i></a>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Time Management</span>
+                            <span class="text-blue-400">90%</span>
+                        </div>
+                        <div class="skill-bar rounded-full">
+                            <div class="skill-progress rounded-full" data-percent="90"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="portfolio-item" data-category="app">
-                    <div class="portfolio-img">
-                        <img src="https://images.unsplash.com/photo-1546054454-aa26e2b734c7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80"
-                            alt="Portfolio Project 2">
-                    </div>
-                    <div class="portfolio-overlay">
-                        <h4 class="portfolio-title">Fitness Tracker App</h4>
-                        <span class="portfolio-category">Mobile App</span>
-                        <div class="portfolio-links">
-                            <a href="#" class="portfolio-link"><i class="fas fa-link"></i></a>
-                            <a href="#" class="portfolio-link"><i class="fas fa-search"></i></a>
+                <!-- Right Column -->
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Teamwork & collaboration</span>
+                            <span class="text-blue-400">90%</span>
+                        </div>
+                        <div class="skill-bar rounded-full">
+                            <div class="skill-progress rounded-full" data-percent="90"></div>
                         </div>
                     </div>
-                </div>
 
-                <div class="portfolio-item" data-category="branding">
-                    <div class="portfolio-img">
-                        <img src="https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1004&q=80"
-                            alt="Portfolio Project 3">
-                    </div>
-                    <div class="portfolio-overlay">
-                        <h4 class="portfolio-title">Brand Identity</h4>
-                        <span class="portfolio-category">Branding</span>
-                        <div class="portfolio-links">
-                            <a href="#" class="portfolio-link"><i class="fas fa-link"></i></a>
-                            <a href="#" class="portfolio-link"><i class="fas fa-search"></i></a>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Adaptability</span>
+                            <span class="text-blue-400">90%</span>
+                        </div>
+                        <div class="skill-bar rounded-full">
+                            <div class="skill-progress rounded-full" data-percent="90"></div>
                         </div>
                     </div>
-                </div>
 
-                <div class="portfolio-item" data-category="web">
-                    <div class="portfolio-img">
-                        <img src="https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
-                            alt="Portfolio Project 4">
-                    </div>
-                    <div class="portfolio-overlay">
-                        <h4 class="portfolio-title">Corporate Website</h4>
-                        <span class="portfolio-category">Web Design</span>
-                        <div class="portfolio-links">
-                            <a href="#" class="portfolio-link"><i class="fas fa-link"></i></a>
-                            <a href="#" class="portfolio-link"><i class="fas fa-search"></i></a>
+                    <div>
+                        <div class="flex justify-between mb-2">
+                            <span class="font-medium">Digital Literacy</span>
+                            <span class="text-blue-400">80%</span>
                         </div>
-                    </div>
-                </div>
-
-                <div class="portfolio-item" data-category="app">
-                    <div class="portfolio-img">
-                        <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=958&q=80"
-                            alt="Portfolio Project 5">
-                    </div>
-                    <div class="portfolio-overlay">
-                        <h4 class="portfolio-title">Travel Guide App</h4>
-                        <span class="portfolio-category">Mobile App</span>
-                        <div class="portfolio-links">
-                            <a href="#" class="portfolio-link"><i class="fas fa-link"></i></a>
-                            <a href="#" class="portfolio-link"><i class="fas fa-search"></i></a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="portfolio-item" data-category="branding">
-                    <div class="portfolio-img">
-                        <img src="https://images.unsplash.com/photo-1621761191319-c6fb62004040?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80"
-                            alt="Portfolio Project 6">
-                    </div>
-                    <div class="portfolio-overlay">
-                        <h4 class="portfolio-title">Logo & Stationery</h4>
-                        <span class="portfolio-category">Branding</span>
-                        <div class="portfolio-links">
-                            <a href="#" class="portfolio-link"><i class="fas fa-link"></i></a>
-                            <a href="#" class="portfolio-link"><i class="fas fa-search"></i></a>
+                        <div class="skill-bar rounded-full">
+                            <div class="skill-progress rounded-full" data-percent="80"></div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Testimonials Section -->
-    <section id="testimonials">
-        <div class="container">
-            <h2 class="section-title">Client Testimonials</h2>
-
-            <div class="testimonials-container">
-                <div class="testimonial-slide active">
-                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
-                        alt="Client 1" class="client-img">
-                    <p class="testimonial-text">"Alex transformed our outdated website into a modern, functional
-                        masterpiece. Their attention to detail and quick turnaround time exceeded all our expectations.
-                        Our online conversions have increased by 45% since the redesign."</p>
-                    <h4 class="client-name">Sarah Johnson</h4>
-                    <span class="client-position">CEO, TechSolutions Inc.</span>
+            <br>
+            <br>
+            <h2 class="text-3xl md:text-4xl font-bold mb-2 text-center">
+                <span class="gradient-text">Tools Used</span>
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-16 max-w-4xl mx-auto">
+                <div class="glass-effect p-4 rounded-lg flex flex-col items-center">
+                    <img src="python.png" alt="JavaScript Logo" class="h-10 mb-2">
+                    <span class="text-sm text-center">Python</span>
                 </div>
-
-                <div class="testimonial-slide">
-                    <img src="https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1467&q=80"
-                        alt="Client 2" class="client-img">
-                    <p class="testimonial-text">"Working with Alex on our mobile app was a game-changer for our
-                        business. Their technical expertise and creative problem-solving skills delivered a product that
-                        our users love. We've seen our user retention rates double in just three months."</p>
-                    <h4 class="client-name">Michael Chen</h4>
-                    <span class="client-position">Founder, FitNation</span>
+                <div class="glass-effect p-4 rounded-lg flex flex-col items-center">
+                    <img src="js.png" alt="JavaScript Logo" class="h-10 mb-2">
+                    <span class="text-sm text-center">JavaScript</span>
                 </div>
-
-                <div class="testimonial-slide">
-                    <img src="https://images.unsplash.com/photo-1552058544-f2b08422138a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=699&q=80"
-                        alt="Client 3" class="client-img">
-                    <p class="testimonial-text">"Alex's branding work for our company perfectly captured our vision and
-                        values. The logo and visual identity they created has made us stand out in a crowded market.
-                        We've received countless compliments from customers and partners alike."</p>
-                    <h4 class="client-name">Emily Rodriguez</h4>
-                    <span class="client-position">Marketing Director, Bloom & Grow</span>
+                <div class="glass-effect p-4 rounded-lg flex flex-col items-center">
+                    <img src="html.png" alt="HTML Logo" class="h-10 mb-2">
+                    <span class="text-sm text-center">HTML</span>
                 </div>
-
-                <div class="testimonial-nav">
-                    <div class="nav-dot active" data-slide="0"></div>
-                    <div class="nav-dot" data-slide="1"></div>
-                    <div class="nav-dot" data-slide="2"></div>
+                <div class="glass-effect p-4 rounded-lg flex flex-col items-center">
+                    <img src="css.png" alt="CSS Logo" class="h-10 mb-2">
+                    <span class="text-sm text-center">CSS</span>
+                </div>
+                <div class="glass-effect p-4 rounded-lg flex flex-col items-center">
+                    <img src="photoshop.png" alt="Adobe Logo" class="h-10 mb-2">
+                    <span class="text-sm text-center">Adobe Photoshop</span>
+                </div>
+                <div class="glass-effect p-4 rounded-lg flex flex-col items-center">
+                    <img src="illustrator.png" alt="Adobe Logo" class="h-10 mb-2">
+                    <span class="text-sm text-center">Adobe Illustrator</span>
+                </div>
+                <div class="glass-effect p-4 rounded-lg flex flex-col items-center">
+                    <img src="premiere.png" alt="Adobe Logo" class="h-10 mb-2">
+                    <span class="text-sm text-center">Adobe Premiere Pro</span>
+                </div>
+                <div class="glass-effect p-4 rounded-lg flex flex-col items-center">
+                    <img src="canva.png" alt="Canva Logo" class="h-10 mb-2">
+                    <span class="text-sm text-center">Canva</span>
+                </div>
+                <div class="glass-effect p-4 rounded-lg flex flex-col items-center">
+                    <img src="filmora.png" alt="JavaScript Logo" class="h-10 mb-2">
+                    <span class="text-sm text-center">Filmora</span>
+                </div>
+                <div class="glass-effect p-4 rounded-lg flex flex-col items-center">
+                    <img src="webinone.png" alt="Adobe Logo" class="h-10 mb-2">
+                    <span class="text-sm text-center">WebInOne</span>
+                </div>
+                <div class="glass-effect p-4 rounded-lg flex flex-col items-center">
+                    <img src="office.png" alt="JavaScript Logo" class="h-10 mb-2">
+                    <span class="text-sm text-center">Office</span>
                 </div>
             </div>
+
         </div>
     </section>
 
     <!-- Contact Section -->
-    <section id="contact">
-        <div class="container">
-            <h2 class="section-title">Get In Touch</h2>
+    <section id="contact" class="py-20 px-6 md:px-12 relative">
+        <div class="absolute -left-40 top-1/3 w-80 h-80 bg-blue-600 rounded-full filter blur-3xl opacity-20"></div>
+        <div class="container mx-auto max-w-4xl">
+            <h2 class="text-3xl md:text-4xl font-bold mb-2 text-center">
+                <span class="gradient-text">Get In Touch</span>
+            </h2>
+            <p class="text-center max-w-2xl mx-auto mb-12 opacity-80">
+                Have a project in mind or want to discuss potential collaboration? Drop me a message!
+            </p>
 
-            <div class="contact-container">
-                <div class="contact-info">
-                    <h3>Let's talk about your project</h3>
-                    <p>Have a project in mind or want to discuss potential opportunities? Feel free to reach out using
-                        the contact form or connect with me through the information below.</p>
-
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-envelope"></i>
+            <div class="glass-effect rounded-xl p-8 md:p-12 shadow-xl">
+                <form id="contact-form" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="name" class="block mb-2 text-sm font-medium">Your Name</label>
+                            <input type="text" id="name"
+                                class="w-full bg-gray-900 bg-opacity-40 border border-gray-800 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                                placeholder="John Doe" required>
                         </div>
                         <div>
-                            <h4>Email</h4>
-                            <a href="mailto:hello@alexcarter.com">hello@alexcarter.com</a>
+                            <label for="email" class="block mb-2 text-sm font-medium">Your Email</label>
+                            <input type="email" id="email"
+                                class="w-full bg-gray-900 bg-opacity-40 border border-gray-800 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                                placeholder="name@company.com" required>
                         </div>
                     </div>
-
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-phone"></i>
-                        </div>
-                        <div>
-                            <h4>Phone</h4>
-                            <a href="tel:+1234567890">+1 (234) 567-890</a>
-                        </div>
+                    <div>
+                        <label for="subject" class="block mb-2 text-sm font-medium">Subject</label>
+                        <input type="text" id="subject"
+                            class="w-full bg-gray-900 bg-opacity-40 border border-gray-800 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                            placeholder="You're Hired!" required>
                     </div>
-
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <div>
-                            <h4>Location</h4>
-                            <address>123 Creative Street, Digital City, 10001</address>
-                        </div>
+                    <div>
+                        <label for="message" class="block mb-2 text-sm font-medium">Your Message</label>
+                        <textarea id="message" rows="6"
+                            class="w-full bg-gray-900 bg-opacity-40 border border-gray-800 text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-3"
+                            placeholder="Your message here..."></textarea>
                     </div>
-                </div>
-
-                <form class="contact-form" id="contactForm">
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Your Name" required>
-                    </div>
-
-                    <div class="form-group">
-                        <input type="email" class="form-control" placeholder="Your Email" required>
-                    </div>
-
-                    <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Subject">
-                    </div>
-
-                    <div class="form-group">
-                        <textarea class="form-control" placeholder="Your Message" required></textarea>
-                    </div>
-
-                    <button type="submit" class="submit-btn">Send Message</button>
+                    <button type="submit"
+                        class="w-full px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg shadow-blue-500/30">
+                        Send Message <i class="fas fa-paper-plane ml-2"></i>
+                    </button>
                 </form>
+
+                <div class="mt-12 pt-8 border-t border-gray-800">
+                    <h3 class="text-xl font-bold mb-6 text-center">Other Ways to Connect</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <a href="mailto:isaak.campbell@outlook.com"
+                            class="glass-effect p-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-500 hover:bg-opacity-20 transition">
+                            <i class="fas fa-envelope text-blue-400"></i>
+                            <span>isaak.campbell@outlook.com</span>
+                        </a>
+                        <a href="tel:+61400973307"
+                            class="glass-effect p-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-500 hover:bg-opacity-20 transition">
+                            <i class="fas fa-phone text-blue-400"></i>
+                            <span>+61 400 973 307</span>
+                        </a>
+                        <a href="https://www.linkedin.com/in/isaak-campbell-779333307/"
+                            class="glass-effect p-4 rounded-lg flex items-center justify-center space-x-2 hover:bg-blue-500 hover:bg-opacity-20 transition">
+                            <i class="fab fa-linkedin-in text-blue-400"></i>
+                            <span>+61 400 973 307</span>
+                        </a>
+                    </div>
+
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <a href="#" class="footer-logo">
-                    alex<span>carter</span>
-                </a>
-
-                <ul class="footer-links">
-                    <li><a href="#hero" class="footer-link">Home</a></li>
-                    <li><a href="#about" class="footer-link">About</a></li>
-                    <li><a href="#services" class="footer-link">Services</a></li>
-                    <li><a href="#portfolio" class="footer-link">Portfolio</a></li>
-                    <li><a href="#contact" class="footer-link">Contact</a></li>
-                </ul>
-
-                <div class="footer-social">
-                    <a href="#" class="footer-social-link"><i class="fab fa-github"></i></a>
-                    <a href="#" class="footer-social-link"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" class="footer-social-link"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="footer-social-link"><i class="fab fa-dribbble"></i></a>
+    <footer class="py-8 px-6 md:px-12 bg-black bg-opacity-70">
+        <div class="container mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <div class="mb-4 md:mb-0">
+                    <a href="#" class="text-2xl font-bold gradient-text">IC</a>
                 </div>
-
-                <p class="copyright">&copy; 2023 Alex Carter. All Rights Reserved.</p>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm opacity-70">© 2025 Isaak Campbell. All rights reserved.</span>
+                </div>
             </div>
         </div>
     </footer>
 
     <!-- Back to Top Button -->
-    <a href="#" class="back-to-top">
-        <i class="fas fa-arrow-up"></i>
-    </a>
+    <button id="back-to-top"
+        class="fixed bottom-8 right-8 w-12 h-12 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center shadow-lg transform transition-all duration-300 opacity-0 invisible">
+        <i class="fas fa-arrow-up text-white"></i>
+    </button>
 
-    <!-- Floating Bubbles Background -->
-    <div class="bubbles">
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-        <div class="bubble"></div>
-    </div>
+    <script>
+        // Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenuButton = document.getElementById('close-menu');
 
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('translate-x-full');
+        });
+
+        closeMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.add('translate-x-full');
+        });
+
+        // Smooth Scrolling for Navigation Links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                const targetId = this.getAttribute('href');
+                if (targetId === '#') return;
+
+                const targetElement = document.querySelector(targetId);
+                if (targetElement) {
+                    // Close mobile menu if open
+                    mobileMenu.classList.add('translate-x-full');
+
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        // Back to Top Button
+        const backToTopButton = document.getElementById('back-to-top');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopButton.classList.remove('opacity-0', 'invisible');
+                backToTopButton.classList.add('opacity-100', 'visible');
+            } else {
+                backToTopButton.classList.remove('opacity-100', 'visible');
+                backToTopButton.classList.add('opacity-0', 'invisible');
+            }
+        });
+
+        backToTopButton.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Animate Skill Bars on Scroll
+        function animateSkillBars() {
+            const skillBars = document.querySelectorAll('.skill-progress');
+
+            skillBars.forEach(bar => {
+                const percent = bar.getAttribute('data-percent');
+                bar.style.width = percent + '%';
+            });
+        }
+
+        // Intersection Observer for Skill Bars
+        const skillsSection = document.getElementById('skills');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    animateSkillBars();
+                }
+            });
+        }, { threshold: 0.1 });
+
+        if (skillsSection) {
+            observer.observe(skillsSection);
+        }
+
+        // Form Submission
+        const contactForm = document.getElementById('contact-form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+
+                // Simple form validation
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const subject = document.getElementById('subject').value.trim();
+                const message = document.getElementById('message').value.trim();
+
+                if (name && email && subject && message) {
+                    // Here you would normally send the form data to a server
+                    alert('Thank you for your message! I will get back to you soon.');
+                    contactForm.reset();
+                } else {
+                    alert('Please fill in all fields.');
+                }
+            });
+        }
+
+        // Create floating particles background
+        function createParticles() {
+            const particleCount = 60;
+            const container = document.body;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                // Random size between 2px and 8px
+                const size = Math.random() * 6 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+
+                // Random position
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+
+                // Random animation duration and delay
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 10;
+                particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+
+                container.appendChild(particle);
+            }
+        }
+
+        // Three.js Animated Background
+        function initThreeJSBackground() {
+            const container = document.getElementById('canvas-container');
+            if (!container) return;
+
+            const canvasWidth = container.clientWidth;
+            const canvasHeight = container.clientHeight;
+
+            // Create scene
+            const scene = new THREE.Scene();
+
+            // Create camera
+            const camera = new THREE.PerspectiveCamera(75, canvasWidth / canvasHeight, 0.1, 1000);
+            camera.position.z = 30;
+
+            // Create renderer
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(canvasWidth, canvasHeight);
+            container.appendChild(renderer.domElement);
+
+            // Create particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particleCount = 9000;
+
+            const posArray = new Float32Array(particleCount * 3);
+            for (let i = 0; i < particleCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 100;
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.2,
+                color: 0x3b82f6,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+
+            // Animation loop
+            function animate() {
+                requestAnimationFrame(animate);
+
+                particlesMesh.rotation.x += 0.0002;
+                particlesMesh.rotation.y += 0.0005;
+
+                renderer.render(scene, camera);
+            }
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                const newWidth = container.clientWidth;
+                const newHeight = container.clientHeight;
+
+                camera.aspect = newWidth / newHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(newWidth, newHeight);
+            });
+
+            animate();
+        }
+
+        // Initialize effects when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            initThreeJSBackground();
+
+            // Add floating class to project cards with delay
+            const projectCards = document.querySelectorAll('.project-card');
+            projectCards.forEach((card, index) => {
+                card.classList.add(`floating-delay-${index % 3}`);
+            });
+        });
+    </script>
 </body>
 
 </html>
